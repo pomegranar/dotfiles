@@ -32,9 +32,6 @@ symbol = " "
 [cmake]
 symbol = " "
 
-[conda]
-symbol = " "
-
 [crystal]
 symbol = " "
 
