@@ -63,7 +63,7 @@ ln -sf ~/.config/dotfiles/zsh/zshenv ~/.zshenv
 - Run `nvim` to bootstrap AstroNvim plugins
 - Install plugins: `~/.tmux/plugins/tpm` (tmux TPM)
 - Configure ghostty themes per your distro's package
-- Set up conda/mamba paths in `~/.zshrc` for your platform
+- Run `uv setup --shell zsh` for uv shell integration
 
 ## Platform Notes
 
