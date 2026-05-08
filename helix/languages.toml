@@ -1,0 +1,28 @@
+# Define the language servers first
+[language-server.quarto-lsp]
+command = "quarto"
+args = ["lsp"]
+
+[language-server.jedi]
+command = "jedi-language-server"
+
+[language-server.ruff]
+command = "ruff-lsp"
+
+# Now define languages
+[[language]]
+name = "quarto"
+scope = "source.qmd"
+file-types = ["qmd"]
+language-servers = ["quarto-lsp"]
+formatter = { command = "quarto", args = ["format", "%{buffer_name}"] }
+
+[[language]]
+name = "python"
+file-types = ["py"]
+language-servers = [
+  { name = "jedi" },
+  { name = "ruff", only-features = ["diagnostics", "code-action"] }
+]
+auto-format = true
+formatter = { command = "black", args = ["-"] }

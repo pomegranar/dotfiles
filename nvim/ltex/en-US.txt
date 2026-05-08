@@ -1,0 +1,4 @@
+# Custom spelling exceptions for en-US
+# Add personal names, technical terms, etc. here
+Anar
+Nyambayar

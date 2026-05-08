@@ -1,0 +1,20 @@
+{
+  "providers": {
+    "sglang-local": {
+      "baseUrl": "http://localhost:18085/v1",
+      "api": "openai-completions",
+      "apiKey": "sglang",
+      "compat": {
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false
+      },
+      "models": [
+        {
+          "id": "Qwen/Qwen3.6-35B-A3B",
+          "reasoning": true,
+          "contextWindow": 262144
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+# Ghostty Configuration
+# Cross-platform: macOS and Linux (Fedora/Ubuntu)
+# NOTE: working-directory is platform-specific; customize per machine
+
+theme = Builtin Dark
+font-size = 14
+window-inherit-working-directory = false
+# working-directory = "~"  # Uncomment and customize for your platform
+
+# Available themes to try (uncomment one):
+# theme = Oxocarbon
+# theme = Gruvbox Dark
+# theme = Kanagawa
+# theme = Catppuccin Mocha
+
+# Uncomment to customize font and appearance:
+# font-family = "Fantasque Sans Mono"
+# background-opacity = 0.90
+# background-blur = 50
+# macos-titlebar-style = hidden

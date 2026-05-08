@@ -1,0 +1,7 @@
+# runtime data
+sessions/
+auth.json
+
+# cloned git repos (keep .gitignore)
+git/github.com/
+!git/.gitignore
