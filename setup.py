@@ -55,6 +55,20 @@ def discover_apps() -> list[tuple[Path, Path]]:
 # --- Tiny TUI ----------------------------------------------------------------
 
 CSI = "\x1b["
+USE_COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+
+def c(code: str, text: str) -> str:
+    return f"{CSI}{code}m{text}{CSI}0m" if USE_COLOR else text
+
+BOLD    = "1"
+DIM     = "2"
+INVERT  = "7"
+RED     = "31"
+GREEN   = "32"
+YELLOW  = "33"
+BLUE    = "34"
+MAGENTA = "35"
+CYAN    = "36"
 
 def _read_key() -> str:
     fd = sys.stdin.fileno()
@@ -76,15 +90,19 @@ def pick(apps: list[tuple[Path, Path]]) -> list[bool]:
     try:
         while True:
             sys.stdout.write(CSI + "H" + CSI + "2J")
-            print("Dotfiles setup")
-            print("  ↑/↓ or j/k: move   space: toggle   a: all   n: none   enter: continue   q: quit\n")
+            print(c(BOLD, "Dotfiles setup"))
+            print(c(DIM, "  ↑/↓ or j/k: move   space: toggle   a: all   n: none   enter: continue   q: quit") + "\n")
             for i, (_src, dst) in enumerate(apps):
-                mark = "●" if sel[i] else "○"
-                state = "install" if sel[i] else "skip   "
+                if sel[i]:
+                    mark = c(GREEN, "●")
+                    state = c(GREEN, "install")
+                else:
+                    mark = c(DIM, "○")
+                    state = c(DIM, "skip   ")
                 rel = dst.relative_to(HOME)
-                line = f"  {mark} {state}  ~/{rel}"
+                line = f"  {mark} {state}  {c(CYAN, f'~/{rel}')}"
                 if i == cursor:
-                    line = CSI + "7m" + line + CSI + "0m"
+                    line = c(INVERT, line)
                 print(line)
             sys.stdout.flush()
             k = _read_key()
@@ -123,27 +141,27 @@ def link_one(src: Path, dst: Path, backup_root: Path | None) -> str:
 
     if dst.is_symlink():
         if Path(os.readlink(dst)) == src:
-            return f"  = {rel} (already linked)"
+            return f"  {c(DIM, '=')} {c(DIM, rel)} (already linked)"
         dst.unlink()
     elif dst.exists():
         if backup_root is None:
-            return f"  ! {rel} exists and is not a symlink — skipped (enable backup or remove it)"
+            return f"  {c(YELLOW, '!')} {rel} exists and is not a symlink — {c(YELLOW, 'skipped')} (enable backup or remove it)"
         backup_dst = backup_root / dst.relative_to(HOME)
         backup_dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(dst), str(backup_dst))
 
     dst.parent.mkdir(parents=True, exist_ok=True)
     dst.symlink_to(src)
-    return f"  + {rel} → {src}"
+    return f"  {c(GREEN, '+')} {rel} {c(DIM, '→')} {c(CYAN, str(src))}"
 
 
 def check_dependencies() -> None:
     missing = [(b, d) for b, d in DEPENDENCIES.items() if shutil.which(b) is None]
     if not missing:
         return
-    print("Warning: missing optional dependencies:")
+    print(c(YELLOW, "Warning: missing optional dependencies:"))
     for binary, desc in missing:
-        print(f"  - {binary}: {desc}")
+        print(f"  {c(YELLOW, '-')} {c(BOLD, binary)}: {desc}")
     print()
 
 
@@ -160,9 +178,9 @@ def main() -> None:
         print("\nNothing selected.")
         return
 
-    print("\nWill install:")
+    print("\n" + c(BOLD, "Will install:"))
     for _src, dst in chosen:
-        print(f"  ~/{dst.relative_to(HOME)}")
+        print(f"  {c(CYAN, f'~/{dst.relative_to(HOME)}')}")
     print()
 
     backup_root: Path | None = None
@@ -172,16 +190,16 @@ def main() -> None:
         loc = ask("Backup location:", default_loc)
         backup_root = Path(os.path.expanduser(loc)).resolve()
         backup_root.mkdir(parents=True, exist_ok=True)
-        print(f"Backups → {backup_root}")
+        print(f"Backups {c(DIM, '→')} {c(MAGENTA, str(backup_root))}")
 
     print()
     for src, dst in chosen:
         try:
             print(link_one(src, dst, backup_root))
         except OSError as e:
-            print(f"  ! ~/{dst.relative_to(HOME)}: {e}")
+            print(f"  {c(RED, '✗')} ~/{dst.relative_to(HOME)}: {c(RED, str(e))}")
 
-    print("\nDone.")
+    print("\n" + c(GREEN, "Done."))
 
 
 if __name__ == "__main__":
