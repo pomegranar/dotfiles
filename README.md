@@ -25,8 +25,8 @@ so changes show up in `git status`.
 ## Install
 
 ```bash
-git clone <repo-url> ~/Developer/dotfiles
-cd ~/Developer/dotfiles
+git clone git@github.com:pomegranar/dotfiles.git anar-dotfiles
+cd anar-dotfiles
 python3 setup.py
 ```
 
@@ -62,6 +62,7 @@ warning, so you can't lose data by mashing enter.
 ## Sensitive info
 
 Removed from public configs — add locally:
+
 - API keys (`LLAMA_CLOUD_API_KEY`, etc.)
 - SSH IPs and private network addresses
 - VPN configuration references
