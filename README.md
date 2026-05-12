@@ -1,86 +1,69 @@
-# Dotfiles — Cross-platform (macOS + Linux: Fedora / Ubuntu)
+# Dotfiles — Cross-platform (macOS + Linux)
 
-## Overview
-Personal development environment configs, cleaned of sensitive information.
-Each directory mirrors the standard XDG or dotfile path structure.
+Personal dev environment configs. The repo layout mirrors `$HOME` exactly,
+so installation is just symlinks.
 
-## Structure
+## Layout
+
 ```
 dotfiles/
-├── tmux/          → ~/.tmux.conf
-├── ghostty/       → ~/.config/ghostty/config
-├── helix/         → ~/.config/helix/{config,languages}.toml
-├── nvim/          → ~/.config/nvim/ (AstroNvim v6)
-├── pi/            → ~/.config/pi/agent/ (Pi agent config)
-├── starship.toml  → ~/.config/starship.toml
-├── vim/           → ~/.vim/vimrc
-└── zsh/           → ~/.zshrc, ~/.zshenv
+├── .zshrc            → ~/.zshrc
+├── .zshenv           → ~/.zshenv
+├── .tmux.conf        → ~/.tmux.conf
+├── .vimrc            → ~/.vimrc
+└── .config/
+    ├── starship.toml → ~/.config/starship.toml
+    ├── ghostty/      → ~/.config/ghostty/
+    ├── helix/        → ~/.config/helix/
+    ├── nvim/         → ~/.config/nvim/      (AstroNvim v6)
+    └── pi/           → ~/.config/pi/
 ```
 
-## Installation
+Editing `~/.zshrc` opens the file in this repo (because it's a symlink),
+so changes show up in `git status`.
 
-### 1. Clone the repo
+## Install
+
 ```bash
-git clone <your-repo-url> ~/.config/dotfiles
-# or wherever you prefer
+git clone <repo-url> ~/Developer/dotfiles
+cd ~/Developer/dotfiles
+python3 setup.py
 ```
 
-### 2. Create symlinks (or use a dotfile manager)
-```bash
-# tmux
-ln -sf ~/.config/dotfiles/tmux/tmux.conf ~/.tmux.conf
+`setup.py` is a single stdlib-only Python script. It:
 
-# ghostty
-mkdir -p ~/.config/ghostty
-ln -sf ~/.config/dotfiles/ghostty/config ~/.config/ghostty/config
+1. Walks the repo and discovers each "app" (top-level entry, or one level
+   under `.config/`). Add a new folder like `.config/emacs/` and it shows
+   up automatically.
+2. Shows an interactive list — `space` to toggle install/skip, `enter` to
+   continue.
+3. Asks whether to back up existing files first (default location:
+   `~/dotfiles-backup-<timestamp>/`).
+4. Symlinks each selected app from the repo into `$HOME`.
 
-# helix
-mkdir -p ~/.config/helix
-ln -sf ~/.config/dotfiles/helix/config.toml ~/.config/helix/config.toml
-ln -sf ~/.config/dotfiles/helix/languages.toml ~/.config/helix/languages.toml
+Existing symlinks are always replaced. Existing **real** files/dirs are
+only touched if backups are enabled; otherwise they're skipped with a
+warning, so you can't lose data by mashing enter.
 
-# nvim (AstroNvim)
-ln -sf ~/.config/dotfiles/nvim ~/.config/nvim
+## Post-install
 
-# pi
-mkdir -p ~/.config/pi/agent
-ln -sf ~/.config/dotfiles/pi/agent/settings.json ~/.config/pi/agent/settings.json
-ln -sf ~/.config/dotfiles/pi/agent/models.json ~/.config/pi/agent/models.json
-# NOTE: auth.json needs your own authentication tokens
+- Run `nvim` once to bootstrap AstroNvim plugins.
+- Install tmux TPM: `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
+- Run `uv setup --shell zsh` for uv shell integration.
 
-# starship
-ln -sf ~/.config/dotfiles/starship.toml ~/.config/starship.toml
+## Platform notes
 
-# vim
-ln -sf ~/.config/dotfiles/vim/vimrc ~/.vimrc
+**macOS** — Homebrew paths are auto-detected in zsh plugins. vimtex uses
+`skim` as the LaTeX viewer.
 
-# zsh
-ln -sf ~/.config/dotfiles/zsh/zshrc ~/.zshrc
-ln -sf ~/.config/dotfiles/zsh/zshenv ~/.zshenv
-```
+**Linux (Fedora / Ubuntu)** — zsh plugins use `/usr/share/zsh/...`. Change
+`vimtex_view_method` to `zathura`.
 
-### 3. Post-install steps
-- Run `nvim` to bootstrap AstroNvim plugins
-- Install plugins: `~/.tmux/plugins/tpm` (tmux TPM)
-- Configure ghostty themes per your distro's package
-- Run `uv setup --shell zsh` for uv shell integration
+## Sensitive info
 
-## Platform Notes
-
-### macOS
-- Homebrew paths are detected automatically in zsh plugins
-- Ghostty theme: use `~/.config/ghostty/auto/theme.ghostty` for custom themes
-- vimtex uses `skim` as the LaTeX viewer
-
-### Linux (Fedora / Ubuntu)
-- zsh plugins: use system package paths (`/usr/share/zsh/...`)
-- Ghostty themes: install via ` paru -S ghostty-git` (AUR) or build from source
-- vimtex: change `vimtex_view_method` to `zathura` for Linux
-
-## Sensitive Info Removed
-The following were removed from public configs — add them locally:
-- API keys (LLAMA_CLOUD_API_KEY, etc.)
+Removed from public configs — add locally:
+- API keys (`LLAMA_CLOUD_API_KEY`, etc.)
 - SSH IPs and private network addresses
 - VPN configuration references
-- Personal project paths
-- Personal aliases (chatdku, etc.)
+- Personal project paths and aliases
+- `.config/pi/agent/auth.json` — your own tokens
