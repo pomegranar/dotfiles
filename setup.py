@@ -15,6 +15,7 @@ from __future__ import annotations
 import datetime
 import os
 import shutil
+import subprocess
 import sys
 import termios
 import tty
@@ -155,6 +156,23 @@ def link_one(src: Path, dst: Path, backup_root: Path | None) -> str:
     return f"  {c(GREEN, '+')} {rel} {c(DIM, '→')} {c(CYAN, str(src))}"
 
 
+TPM_DIR = HOME / ".tmux" / "plugins" / "tpm"
+TPM_REPO = "https://github.com/tmux-plugins/tpm"
+
+
+def check_tpm() -> None:
+    if TPM_DIR.exists():
+        return
+    print(f"{c(YELLOW, 'tmux plugin manager (TPM)')} is not installed at {c(CYAN, f'~/{TPM_DIR.relative_to(HOME)}')}.")
+    if not confirm("Install it now?"):
+        return
+    try:
+        subprocess.run(["git", "clone", TPM_REPO, str(TPM_DIR)], check=True)
+        print(c(GREEN, "TPM installed.") + f" Inside tmux, press {c(BOLD, 'prefix + I')} to fetch plugins.\n")
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        print(f"  {c(RED, '✗')} TPM install failed: {e}\n")
+
+
 def check_dependencies() -> None:
     missing = [(b, d) for b, d in DEPENDENCIES.items() if shutil.which(b) is None]
     if not missing:
@@ -167,6 +185,7 @@ def check_dependencies() -> None:
 
 def main() -> None:
     check_dependencies()
+    check_tpm()
     apps = discover_apps()
     if not apps:
         print("No dotfiles found in repo.")
