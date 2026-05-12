@@ -20,6 +20,10 @@ import termios
 import tty
 from pathlib import Path
 
+DEPENDENCIES = {
+    "gols": "a colorful `ls` alternative — https://github.com/Tigermen0710/gols",
+}
+
 REPO = Path(__file__).resolve().parent
 HOME = Path.home()
 
@@ -133,7 +137,18 @@ def link_one(src: Path, dst: Path, backup_root: Path | None) -> str:
     return f"  + {rel} → {src}"
 
 
+def check_dependencies() -> None:
+    missing = [(b, d) for b, d in DEPENDENCIES.items() if shutil.which(b) is None]
+    if not missing:
+        return
+    print("Warning: missing optional dependencies:")
+    for binary, desc in missing:
+        print(f"  - {binary}: {desc}")
+    print()
+
+
 def main() -> None:
+    check_dependencies()
     apps = discover_apps()
     if not apps:
         print("No dotfiles found in repo.")
